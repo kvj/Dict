@@ -6,7 +6,7 @@ var kanjiXML = [];
 var syncManager = null;
 
 yepnope({
-    load: ['lib/custom-web/cross-utils.js', 'lib/common-web/jquery-1.7.1.min.js', 'lib/common-web/jquery.autogrow.js', 'lib/common-web/underscore-min.js', 'lib/common-web/underscore.strings.js', 'lib/common-web/json2.js', 'lib/custom-web/layout.js', 'lib/ui/ui.css', 'lib/ui/theme-default.css', 'lib/ui/ui.js', 'lima1/net.js', 'lima1/main.js'],
+    load: ['lib/custom-web/cross-utils.js', 'lib/common-web/jquery-1.7.1.min.js', 'lib/common-web/jquery.autogrow.js', 'lib/common-web/underscore-min.js', 'lib/common-web/underscore.strings.js', 'lib/common-web/json2.js', 'lib/custom-web/layout.js', 'lib/ui/ui.css', 'lib/ui/theme-default.css', 'lib/ui/ui.js', 'lima1/net.js', 'lima1/main.js', 'lib/custom-web/date.js'],
     complete: function () {
         yepnope([{
             test: CURRENT_PLATFORM == PLATFORM_AIR,

@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html debug="true">
+    <head>
+        <title>Japanese</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+        <script type="text/javascript" src="lib/air/AIRAliases.js"></script>
+        <script type="text/javascript" src="lib/air/AIRIntrospector.js"></script>
+        <!--Other libraries-->
+        <script type="text/javascript" src="lib/custom-web/cross-utils.js"></script>
+        <script type="text/javascript" src="lib/common-web/jquery-1.4.4.min.js"></script>
+        <script type="text/javascript" src="lib/common-web/underscore-min.js"></script>
+        <script type="text/javascript" src="lib/common-web/underscore.strings.js"></script>
+        <script type="text/javascript" src="lib/custom-web/date.js"></script>
+        <script type="text/javascript" src="lib/common-web/json2.js"></script>
+        <!--UI library-->
+        <link rel="stylesheet" href="lib/ui/ui.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/ui/desktop.css" type="text/css"/>
+        <!--Application files-->
+        <link rel="stylesheet" href="dict/dict.css" type="text/css"/>
+        <script type="text/javascript" src="dict/dict-sheet.js"></script>
+        <script type="text/javascript" src="dict/canto-0.13.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var root = $('<div/>').appendTo(document.body);
+                var controller = new KanjiPanelElement(root, _proxy, true);
+                controller.updated = function() {
+                    window.nativeWindow.height = root.outerHeight();
+                };
+                controller.moving = function() {
+                    window.nativeWindow.startMove();
+                };
+
+                root.bind('mousewheel', function(e){
+                    var direction = e.wheelDelta>0? -1: 1;
+                    if (e.shiftKey) {//Change timeout
+                        if (e.ctrlKey) {
+                            controller.changeLevel(direction);
+                        } else {
+                            controller.changeTimeout(direction);
+                        }
+                        return false;
+                    }
+                    if (e.ctrlKey) {//Change size
+                        window.nativeWindow.width += direction*10;
+                        controller.showWord(controller.next);
+                        _proxy('setInt', ['kanji_panel_width', window.nativeWindow.width]);
+                        return false;
+                    };
+                    var opacity = parseFloat(root.css('opacity')) || 1.0;
+                    opacity += 0.1*direction;
+                    opacity = opacity<0.1? 0.1: (opacity>1? 1: opacity);
+                    root.css('opacity', opacity);
+                    return false;
+                });
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
+

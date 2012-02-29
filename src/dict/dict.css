@@ -1,0 +1,208 @@
+.button_outer {
+    min-width: 80px;
+}
+
+.char {
+}
+
+.kana {
+    cursor: pointer;
+}
+
+.kanji {
+}
+
+.dict_entry {
+    margin: 2px;
+    padding: 2px;
+    border: 1px solid #dddddd;
+    -webkit-border-radius: 4px;
+    cursor: pointer;
+    color: #efefef;
+}
+
+.line {
+    word-break: break-all;
+    margin-bottom: 3px;
+    color: #aaaaaa;
+    font-size: 0.9em;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.line_selected {
+    color: #eeeeee;
+    font-size: 1.2em;
+    cursor: inherit;
+}
+
+.trans {
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-text-overflow: ellipsis;
+    color: #efefef;
+}
+
+.word {
+    background-color: #eeeeee;
+    border: 1px solid #cccccc;
+    margin-left: 2px;
+    color: #efefef;
+}
+
+.word_selected {
+    border-color: #007700;
+    background-color: #dddddd;
+}
+
+.word_trans {
+    color: #007700;
+    font-size: 0.8em;
+    word-break: normal;
+    margin-right: 2px;
+}
+
+.kana_up {
+    cursor: pointer;
+}
+
+.chars {
+    cursor: pointer;
+}
+
+.menu {
+    margin: 2px;
+    padding: 2px;
+    border: 1px solid #dddddd;
+    -webkit-border-radius: 4px;
+}
+
+.chapter_read {
+    opacity: 0.6;
+}
+
+.magnifier {
+    position: absolute;
+    padding: 3px;
+    border: 1px solid #dddddd;
+    font-size: 2em;
+    background-color: #ffffff;
+}
+
+.entry_group {
+    margin-bottom: 1px;
+}
+
+.entry_line {
+    margin-left: 10px;
+    color: #efefef;
+}
+
+.entry_line_first {
+    margin-left: 0px;
+}
+
+.kanji_btn {
+    width: 40px;
+}
+
+.drawing {
+    margin: 2px;
+    padding: 2px;
+    border: 1px solid #222222;
+    -webkit-border-radius: 4px;
+}
+
+.drawing_pane {
+    position: relative;
+    margin: 0 auto;
+}
+
+.list_row {
+    cursor: pointer;
+    padding-top: 5px;
+    color: #efefef;
+}
+
+#sync_indicator {
+    position: absolute;
+    top: 0px;
+    height: 4px;
+    width: 100%;
+    z-index: 11;
+    background-color: #ff0000;
+}
+
+.kanji_panel_translate {
+    font-size: 1.4em;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 4px;
+}
+
+.kanji_panel_kana {
+    font-size: 1.7em;
+}
+
+.kanji_panel_menu {
+    float: left;
+    width: 40px;
+    text-align: center;
+}
+
+.kanji_panel_right {
+    margin-left: 40px;
+}
+
+.icon {
+    cursor: pointer;
+}
+
+.kanji_panel_bg {
+    background-color: #dddddd;
+}
+
+.kanji_panel_bg_bright.kanji_panel_bg {
+    background-color: #111111;
+}
+
+.kanji_panel_bright {
+    color: #eeeeee;
+}
+
+.kanji_panel_study_icons {
+    float: left;
+    width: 120px;
+}
+
+.kanji_panel_study_text {
+    margin-left: 120px;
+    position: relative;
+}
+
+.kanji_panel_answer {
+    background-color: #aaddaa;
+}
+
+.kanji_panel_status {
+    font-size: 0.8em;
+    white-space: nowrap;
+    margin-top: 5px;
+}
+
+.word_progress {
+    display: inline-block;
+    width: 40px;
+    height: 6px;
+    border: 1px solid #dddddd;
+    margin-right: 3px;
+}
+
+.word_progress_green {
+    height: 100%;
+    background-color: #00ff00;
+}
+
+.word_progress_red {
+    background-color: #ff0000;
+}

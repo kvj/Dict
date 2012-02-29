@@ -1,0 +1,1 @@
+C:\Home\Download\AdobeAIRSDK\bin\adl.exe dict.xml

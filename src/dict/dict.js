@@ -4,26 +4,27 @@ var layout = null;
 var config = null;
 var kanjiXML = [];
 var syncManager = null;
+var db = null;
 
 yepnope({
-    load: ['lib/custom-web/cross-utils.js', 'lib/common-web/jquery-1.7.1.min.js', 'lib/common-web/jquery.autogrow.js', 'lib/common-web/underscore-min.js', 'lib/common-web/underscore.strings.js', 'lib/common-web/json2.js', 'lib/custom-web/layout.js', 'lib/ui/ui.css', 'lib/ui/theme-default.css', 'lib/ui/ui.js', 'lima1/net.js', 'lima1/main.js', 'lib/custom-web/date.js'],
+    load: ['lib/custom-web/cross-utils.js', 'lib/common-web/jquery-1.7.1.min.js', 'lib/common-web/underscore-min.js', 'lib/common-web/underscore.strings.js', 'lib/common-web/json2.js', 'lib/custom-web/layout.js', 'lib/ui/ui.css', 'lib/ui/theme-default.css', 'lib/ui/ui.js', 'lima1/net.js', 'lima1/main.js', 'lib/custom-web/date.js'],
     complete: function () {
         yepnope([{
+            load: ['lib/common-web/jquery.autogrow.js', 'lib/common-web/jquery.mousewheel.js']
+        }, {
             test: CURRENT_PLATFORM == PLATFORM_AIR,
             yep: ['lib/air/AIRAliases.js', 'lib/air/AIRIntrospector.js']
         }, {
             test: CURRENT_PLATFORM_MOBILE,
-            yep: ['lib/ui/android.css', 'lib/common-web/phonegap-1.4.1.js'],
+            yep: ['lib/ui/android.css', 'lib/common-web/phonegap-1.4.1.js', 'dict/dict-pg-plugin.js'],
             nope: ['lib/ui/desktop.css']
         }, {
             load: ['dict/dict-sheet.js', 'dict/canto-0.13.js', 'dict/dict.css'],
             complete: function () {
                 $(function() {//Ready
                     if (CURRENT_PLATFORM_MOBILE) {//deviceready listener
-                        document.addEventListener("deviceready", function() {
-                            log('Running phonegap...');
-                            run();
-                        }, false);
+                        log('Running phonegap...');
+                        run();
                     } else {
                         log('Desktop start...');
                         run();
@@ -36,8 +37,27 @@ yepnope({
 
 
 var run = function() {
-    _initUI();
-    dict = new AirDBProvider('dict/dict.sqlite');
+    if (CURRENT_PLATFORM == PLATFORM_AIR) {
+        db = new AirDBProvider('dict', '1');
+    } else {
+        db = new HTML5Provider('dict', '1');
+    }
+    _initUI(db);
+    if (CURRENT_PLATFORM_MOBILE) {//Empty layout
+        layout = new Layout({});
+    } else {//Simple layout
+        layout = new Layout({id: 'main'});
+    };
+    manager = new PanelManager({
+        root: $('#main'),
+        minColWidth: 400
+    });
+    $('<div id="sync_indicator"/>').appendTo($('#main')).hide();
+    if (CURRENT_PLATFORM_MOBILE) {
+        dict = new DictPGPlugin('dict/dict.sqlite');
+    } else {
+        dict = new AirDBProvider('dict/dict.sqlite');
+    }
     if (CURRENT_PLATFORM == PLATFORM_AIR) {//
         window.nativeWindow.addEventListener(air.Event.CLOSE, function() {
             air.NativeApplication.nativeApplication.exit();
@@ -72,16 +92,6 @@ var run = function() {
         //         object.element.stop().clearQueue().fadeTo(100, 1);
         //     };
         // }
-        if (CURRENT_PLATFORM_MOBILE) {//Empty layout
-            layout = new Layout({});
-        } else {//Simple layout
-            layout = new Layout({id: 'main'});
-        };
-        manager = new PanelManager({
-            root: $('#main'),
-            minColWidth: 400
-        });
-        $('<div id="sync_indicator"/>').appendTo($('#main')).hide();
         var tp = new TopPanel();
         // config = new DBConfig({
         //     goBack: true,
@@ -296,13 +306,6 @@ var TopPanel = function() {//Top panel
 
 TopPanel.prototype.open = function() {
     syncManager = null;
-
-    var db = null;
-    if (CURRENT_PLATFORM == PLATFORM_AIR) {
-        db = new AirDBProvider('dict');
-    } else {
-        db = new HTML5Provider('dict', '1');
-    }
     var storage = new StorageProvider(db)
     var jqnet = new jQueryTransport('http://lima1sync.appspot.com')
     var oauth = new OAuthProvider({
@@ -1840,24 +1843,32 @@ ListManager.prototype.reload = function() {
 
 var _kanjiProxy = function(method, params, handler) {
     if (method == 'getWords') {
-        
-        syncManager.query({
-            query: 'select w.* from words w, lists l where w._sync_delete=0 and l._sync_delete=0 and w.list_id=l.id and l.selected=1',
-            ok: function(data) {
+        syncManager.storage.select('lists', ['selected', 1], _.bind(function (err, data) {
+            var gr = new AsyncGrouper(data.length, _.bind(function (gr) {
+                var err = gr.findError();
+                if (err) {
+                    return _defaultDBError(err);
+                };
                 var res = [];
                 for (var i = 0; i < data.length; i++) {
-                    var row = data[i];
-                    row.rating = row.tries>0? row.score/row.tries: -1;
-                    if (row.rating<=params[0]) {
-                        res.push(row);
+                    var words = gr.results[i][0];
+                    for (var j = 0; j < words.length; j++) {
+                        var row = words[j];
+                        row.rating = row.tries>0? row.score/row.tries: -1;
+                        if (row.rating<=params[0]) {
+                            res.push(row);
+                        };
                     };
                 };
                 handler(res.sort(function(a, b) {
                     return a.rating == b.rating? 0: (a.rating>b.rating? 1: -1);
                 }));
-            },
-            err: _defaultDBError
-        });
+
+            }, this));
+            for (var i = 0; i < data.length; i++) {
+                syncManager.storage.select('words', ['list_id', data[i].id], gr.fn);
+            };
+        }, this));
         return true;
     };
     if (method == 'getKanji') {
@@ -1889,39 +1900,26 @@ var _kanjiProxy = function(method, params, handler) {
         return true;
     };
     if (method == 'setInt') {
-        storage.setInt(params[0], params[1]);
+        db.set(params[0], params[1]);
         return true;
     };
     if (method == 'getInt') {
-        return storage.getInt(params[0], params[1]);
+        return parseInt(db.get(params[0], params[1]));
     };
     if (method == 'saveAnswer') {
-        syncManager.query({
-            query: 'select * from words where id=?',
-            values: [params[0]],
-            ok: function(data) {
-                if (data.length == 1) {
-                    syncManager.query({
-                        table: 'words',
-                        type: 'update',
-                        fields: ['score', 'tries'],
-                        values: [data[0].score+params[1], data[0].tries+1, params[0]],
-                        where: 'id=?',
-                        ok: function(data) {
-                            handler(params[0]);
-                        },
-                        err: function(err) {
-                            handler(null, err);
-                        }
-                    });
-                } else {
-                    handler(null, 'No word');
+        syncManager.findOne('words', params[0], _.bind(function (err, obj) {
+            if (err) {
+                return handler(null, err);
+            };
+            obj.score += params[1];
+            obj.tries++;
+            syncManager._save('words', obj, _.bind(function (err, obj) {
+                if (err) {
+                    return handler(null, err);
                 };
-            },
-            err: function(err) {
-                handler(null, err);
-            }
-        });
+                handler(params[0]);
+            }, this))
+        }, this))
         return true;
     };
 };
@@ -1940,7 +1938,7 @@ var KanjiWindow = function(panel) {//
     if (_kanjiWin && !_kanjiWin.closed) {
         _kanjiWin.close();
     };
-    _kanjiWin = openToolWindow('dict-sheet.html', _kanjiProxy, {x: 10, y: 10, width: storage.getInt('kanji_panel_width', 300), height: 300}).nativeWindow;
+    _kanjiWin = openToolWindow('dict-sheet.html', _kanjiProxy, {x: 10, y: 10, width: parseInt(db.get('kanji_panel_width', '300')), height: 300}).nativeWindow;
 };
 
 var KanjiPanel = function(panel) {//

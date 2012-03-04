@@ -980,7 +980,7 @@ TextViewer.prototype.drawLine = function(index, selected) {//
 };
 
 TextViewer.prototype.drawText = function(ctx, text, width, charSize, selected) {//Draws one kanji
-    var col = selected? '#efefef': '#aaaaaa';
+    var col = selected? '#ffffff': '#efefef';
     for (var i = 0; i < text.length; i++) {//Draw chars one by one
         ctx.save();
         ctx.translate((width-text.length*charSize)/2+i*charSize, 0).scale(charSize/109, charSize/109);

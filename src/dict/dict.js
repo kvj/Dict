@@ -1444,6 +1444,7 @@ var Collections = function() {//Manages collection
                     safe: true,
                     data: data[i],
                     className: 'button_left',
+                    classNameInner: 'button_list',
                     handler: _.bind(function(e, btn) {//
                         //log('Edit', btn.data.name);
                         //this.editDialog(btn.data);
@@ -1623,6 +1624,7 @@ Collections.prototype.showCollection = function(data) {//Shows chapters
                     data: data[i],
                     safe: true,
                     className: 'button_left'+(data[i].read>0? ' chapter_read': ''),
+                    classNameInner: 'button_list',
                     handler: _.bind(function(e, btn) {//Click on chapter
                         //log('Show text viewer', btn.data.id);
                         var lines = btn.data.text.split('\n');

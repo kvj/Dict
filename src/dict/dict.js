@@ -875,6 +875,12 @@ var TextViewer = function(config) {//Show japanese text with menu and other func
     this.canvases = [];
     this.kanjiCache = {};
     this.items = [];
+    setTimeout(_.bind(function () {
+        this.showText();
+    }, this), 10);
+};
+
+TextViewer.prototype.showText = function() {
     for (var i = 0; i < this.config.lines.length; i++) {//Add lines
         this.addLine(this.config.lines[i]);
     };

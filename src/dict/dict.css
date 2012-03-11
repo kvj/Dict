@@ -70,6 +70,10 @@
     cursor: pointer;
 }
 
+.line_canvas_selected {
+    border-top: 1px dashed #dddddd;
+}
+
 .menu {
     margin: 2px;
     padding: 2px;

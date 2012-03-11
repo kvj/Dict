@@ -16,7 +16,7 @@ yepnope({
             yep: ['lib/air/AIRAliases.js', 'lib/air/AIRIntrospector.js']
         }, {
             test: CURRENT_PLATFORM_MOBILE,
-            yep: ['lib/ui/android.css', 'lib/common-web/phonegap-1.4.1.js', 'dict/dict-pg-plugin.js'],
+            yep: ['lib/ui/android.css', 'lib/ui/theme-default-android.css', 'lib/common-web/phonegap-1.4.1.js', 'dict/dict-pg-plugin.js'],
             nope: ['lib/ui/desktop.css']
         }, {
             load: ['dict/dict-sheet.js', 'dict/canto-0.13.js', 'dict/dict.css'],
@@ -31,6 +31,9 @@ yepnope({
                     };
                 });
             }
+        }, {
+            test: CURRENT_PLATFORM_MOBILE,
+            yep: ['dict/dict-android.css']
         }]);
     }
 })
@@ -44,6 +47,7 @@ var run = function() {
     }
     _initUI(db);
     if (CURRENT_PLATFORM_MOBILE) {//Empty layout
+        PhoneGap.onDOMContentLoaded.fire();
         layout = new Layout({});
     } else {//Simple layout
         layout = new Layout({id: 'main'});
@@ -295,6 +299,13 @@ var TopPanel = function() {//Top panel
                     return true;
                 }, this),
             });
+            items.push({
+                caption: 'Reset and Sync',
+                handler: _.bind(function() {
+                    this.sync(true);
+                    return true;
+                }, this),
+            });
             new PopupMenu({
                 element: this.panel.element,
                 items: items,
@@ -327,7 +338,7 @@ TopPanel.prototype.open = function() {
     }, this));
 };
 
-TopPanel.prototype.sync = function() {
+TopPanel.prototype.sync = function(force_clean) {
     if (syncManager) {
         $('#sync_indicator').show();
         _showInfo('Sync started...', 15000);
@@ -338,7 +349,7 @@ TopPanel.prototype.sync = function() {
             } else {//Sync done
                 $('#info_dialog').hide();
             };
-        }, this));
+        }, this), force_clean);
     };
 };
 
@@ -867,8 +878,8 @@ var TextViewer = function(config) {//Show japanese text with menu and other func
     this.lines = [];
     this.text = [];
     this.selected = -1;
-    this.kanjiSize = 20;
-    this.kanaSize = 12;
+    this.kanjiSize = CURRENT_PLATFORM_MOBILE? 40: 20;
+    this.kanaSize = CURRENT_PLATFORM_MOBILE? 25: 12;
     this.words = [];
     this.scale = 1;
     this.selectedScale = 1.3;
@@ -1153,17 +1164,20 @@ TextViewer.prototype.selectLine = function(index) {//Selects line
     if (this.selected == index) {//Already selected
         return false;
     };
+    this.panel.element.children('.line_canvas').removeClass('line_canvas_selected');
     if (this.selected != -1) {
         this.drawLine(this.selected, false);
     };
     this.selected = index;
+
     this.drawLine(this.selected, true);
-    //this.panel.element.children('.line').removeClass('line_selected');
+    // this.panel.element.children('.line').removeClass('line_selected');
     var line = this.panel.element.children('.line_canvas').eq(index);
     //line.addClass('line_selected');
     //line.find('.word').removeClass('word_selected');
     this.entry.insertAfter(line);
     this.menu.insertAfter(line);
+    line.addClass('line_canvas_selected');
     this.trans.text('No word selected');
     this.kanjis.show();
     this.entry.empty();

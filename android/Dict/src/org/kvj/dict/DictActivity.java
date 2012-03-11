@@ -10,6 +10,7 @@ public class DictActivity extends DroidGap {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		WebView.enablePlatformNotifications();
 		setRequestedOrientation(getResources().getConfiguration().orientation);
 		super.setIntegerProperty("backgroundColor", Color.BLACK);
 		super.setBooleanProperty("keepRunning", true);
